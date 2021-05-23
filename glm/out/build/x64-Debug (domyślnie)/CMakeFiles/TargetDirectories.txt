@@ -1,0 +1,2 @@
+C:/Users/snios/Documents/Uczelnia_sem4/GKiW/Gkiw_chess/glm/out/build/x64-Debug (domyślnie)/CMakeFiles/edit_cache.dir
+C:/Users/snios/Documents/Uczelnia_sem4/GKiW/Gkiw_chess/glm/out/build/x64-Debug (domyślnie)/CMakeFiles/rebuild_cache.dir
