@@ -1,22 +1,3 @@
-/*
-Niniejszy program jest wolnym oprogramowaniem; możesz go
-rozprowadzać dalej i / lub modyfikować na warunkach Powszechnej
-Licencji Publicznej GNU, wydanej przez Fundację Wolnego
-Oprogramowania - według wersji 2 tej Licencji lub(według twojego
-wyboru) którejś z późniejszych wersji.
-
-Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on
-użyteczny - jednak BEZ JAKIEJKOLWIEK GWARANCJI, nawet domyślnej
-gwarancji PRZYDATNOŚCI HANDLOWEJ albo PRZYDATNOŚCI DO OKREŚLONYCH
-ZASTOSOWAŃ.W celu uzyskania bliższych informacji sięgnij do
-Powszechnej Licencji Publicznej GNU.
-
-Z pewnością wraz z niniejszym programem otrzymałeś też egzemplarz
-Powszechnej Licencji Publicznej GNU(GNU General Public License);
-jeśli nie - napisz do Free Software Foundation, Inc., 59 Temple
-Place, Fifth Floor, Boston, MA  02110 - 1301  USA
-*/
-
 #define GLM_FORCE_RADIANS
 
 #include <GL/glew.h>
@@ -30,13 +11,23 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 #include "allmodels.h"
 #include "lodepng.h"
 #include "shaderprogram.h"
+#include <iostream>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include <myCube.h>
 
 GLuint tex; //Uchwyt – deklaracja globalna
+std::vector<glm::vec4> verts;
+std::vector<glm::vec4> norms;
+std::vector<glm::vec2> texCoords;
+std::vector<unsigned int> indices;
 
 float speed_x = 0;//[radiany/s]
 float speed_y = 0;//[radiany/s]
+float aspectRatio = 1;
 
 GLuint readTexture(const char* filename) {
 	GLuint tex;
@@ -97,17 +88,71 @@ void key_callback(
 	}
 }
 
+void windowResizeCallback(GLFWwindow* window, int width, int height) {
+	if (height == 0) return;
+	aspectRatio = (float)width / (float)height;
+	glViewport(0, 0, width, height);
+}
+
+void loadModel(std::string plik) {
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(plik, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+	std::cout << importer.GetErrorString() << std::endl;
+
+	/*if (scene->HasMeshes()) {
+		for (int i = 0; i < scene->mNumMeshes; i++) {
+			importuj mesh (aiMesh * mesh = scene->mMeshes[0];)
+		}
+	}*/
+	 
+	std::cout << scene->mNumMeshes << std::endl;
+	aiMesh* mesh = scene->mMeshes[0];
+
+	for (int i = 0; i < mesh->mNumVertices; i++) {
+		aiVector3D vertex = mesh->mVertices[i];
+		verts.push_back(glm::vec4(vertex.x, vertex.y, vertex.z, 1));
+		aiVector3D normal = mesh->mNormals[i];
+		norms.push_back(glm::vec4(normal.x, normal.y, normal.z, 1));
+		aiVector3D texCoord = mesh->mTextureCoords[0][i];
+		texCoords.push_back(glm::vec2(texCoord.x, texCoord.y));
+	}
+
+	for (int i = 0; i < mesh->mNumFaces; i++) {
+		aiFace& face = mesh->mFaces[i];
+		for (int j = 0; j < face.mNumIndices; j++) {
+			indices.push_back(face.mIndices[j]);
+		}
+	}
+
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+	/*for (int i = 0; i < 19; i++) {
+		std::cout << i << " " << material->GetTextureCount((aiTextureType)i) << std::endl;
+	}*/
+
+	for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); i++) {
+		aiString str;
+
+		material->GetTexture(aiTextureType_DIFFUSE, i, &str);
+		std::cout << str.C_Str() << std::endl;
+	}
+
+}
+
 
 //Procedura inicjująca
 void initOpenGLProgram(GLFWwindow* window) {
     initShaders();
 	//************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
-	glClearColor(0, 0, 0, 1); //Ustaw kolor czyszczenia bufora kolorów
+	glClearColor(0,0,0,1); //Ustaw kolor czyszczenia bufora kolorów
 	glEnable(GL_DEPTH_TEST); //Włącz test głębokości na pikselach
+	glfwSetWindowSizeCallback(window, windowResizeCallback);
 	glfwSetKeyCallback(window, key_callback);
 
 	//Wczytanie i import obrazka – w initOpenGLProgram
-	tex = readTexture("bricks.png");
+	tex = readTexture("wood.png");
+	loadModel(std::string("Turn.fbx"));
 }
 
 
@@ -128,291 +173,33 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y) {
 	glm::mat4 M = glm::mat4(1.0f); //Zainicjuj macierz modelu macierzą jednostkową
 	M = glm::rotate(M, angle_y, glm::vec3(0.0f, 1.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi Y
 	M = glm::rotate(M, angle_x, glm::vec3(1.0f, 0.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi X
-	glm::mat4 V = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
-	glm::mat4 P = glm::perspective(glm::radians(50.0f), 1.0f, 1.0f, 50.0f); //Wylicz macierz rzutowania
+	glm::mat4 V = glm::lookAt(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); //Wylicz macierz widoku
+	glm::mat4 P = glm::perspective(50.0f * PI / 180.0f, aspectRatio, 0.01f, 50.0f);
 
-	//Zamiast poniższych linijek należy wstawić kod dotyczący rysowania własnych obiektów (glDrawArrays/glDrawElements i wszystko dookoła)
-	//-----------
-	//spLambert->use(); //Aktyeuj program cieniujący
-	//glUniform4f(spLambert->u("color"), 0, 1, 0, 1); //Ustaw kolor rysowania obiektu
-	//glUniformMatrix4fv(spLambert->u("P"), 1, false, glm::value_ptr(P)); //Załaduj do programu cieniującego macierz rzutowania
-	//glUniformMatrix4fv(spLambert->u("V"), 1, false, glm::value_ptr(V)); //Załaduj do programu cieniującego macierz widoku
-	//glUniformMatrix4fv(spLambert->u("M"), 1, false, glm::value_ptr(M)); //Załaduj do programu cieniującego macierz modelu
-	//Models::torus.drawSolid(); //Narysuj obiekt
+	glm::mat4 M1 = M;
+	M1 = glm::scale(M1, glm::vec3(7,7,7));
 
+	spTextured->use();
+	glUniformMatrix4fv(spTextured->u("P"), 1, false, glm::value_ptr(P));
+	glUniformMatrix4fv(spTextured->u("V"), 1, false, glm::value_ptr(V));
+	glUniformMatrix4fv(spTextured->u("M"), 1, false, glm::value_ptr(M1));
+	glUniform4f(spTextured->u("color"), 0, 1, 0, 1);
 
-	//--------------------------------------------------------------------------------------------------------------------
-	//przykład1
-	/*float verts[] = {
-	  0,4.08,0,1,     0,0,2.88,1,    -2.5,0,-1.44,1,
-	  0,4.08,0,1,     0,0,2.88,1,     2.5,0,-1.44,1,
-	  0,4.08,0,1,     2.5,0,-1.44,1, -2.5,0,-1.44,1,
-	  2.5,0,-1.44,1, -2.5,0,-1.44,1,  0,0,2.88,1 };
-	float colors[] = {
-	  1,0,0,1,  1,0,0,1,  1,0,0,1,
-	  0,1,0,1,  0,1,0,1,  0,1,0,1,
-	  0,0,1,1,  0,0,1,1,  0,0,1,1,
-	  1,1,0,1,  1,1,0,1,  1,1,0,1 };
-	int vertexCount = 12;
+	glEnableVertexAttribArray(spTextured->a("vertex"));
+	glVertexAttribPointer(spTextured->a("vertex"), 4, GL_FLOAT, false, 0, verts.data());
 
-	spColored->use();
-	glUniformMatrix4fv(spColored->u("P"), 1, false, glm::value_ptr(P));
-	glUniformMatrix4fv(spColored->u("V"), 1, false, glm::value_ptr(V));
-	glUniformMatrix4fv(spColored->u("M"), 1, false, glm::value_ptr(M));
-
-	glEnableVertexAttribArray(spColored->a("vertex"));
-	glVertexAttribPointer(spColored->a("vertex"), 4, GL_FLOAT, false, 0, verts);
-
-	glEnableVertexAttribArray(spColored->a("color"));
-	glVertexAttribPointer(spColored->a("color"), 4, GL_FLOAT, false, 0, colors);
-
-	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	glDisableVertexAttribArray(spColored->a("vertex"));
-	glDisableVertexAttribArray(spColored->a("color"));*/
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//przykład2
-	//float verts[] = {
-	//	0,4.08,0,1,     0,0,2.88,1,   -2.5,0,-1.44,1,    2.5,0,-1.44,1 };
-	//float colors[] = {
-	//	1,0,0,1,  0,1,0,1,  0,0,1,1,  1,1,0,1 };
-	//unsigned int indexes[] = {
-	//	0,1,2,  0,1,3,  0,2,3,  3,2,1 };
-	//int indexCount = 12;
-	//int vertexCount = 4;
-
-	//spColored->use();
-	//glUniformMatrix4fv(spColored->u("P"), 1, false, glm::value_ptr(P));
-	//glUniformMatrix4fv(spColored->u("V"), 1, false, glm::value_ptr(V));
-	//glUniformMatrix4fv(spColored->u("M"), 1, false, glm::value_ptr(M));
-
-	//glEnableVertexAttribArray(spColored->a("vertex"));
-	//glVertexAttribPointer(spColored->a("vertex"), 4, GL_FLOAT, false, 0, verts);
-
-	//glEnableVertexAttribArray(spColored->a("color"));
-	//glVertexAttribPointer(spColored->a("color"), 4, GL_FLOAT, false, 0, colors);
-
-	//glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexes);
-
-	//glDisableVertexAttribArray(spColored->a("vertex"));
-	//glDisableVertexAttribArray(spColored->a("color"));
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//zad1
-	/*float verts[] = {
-		2.2,1,0,1,    -2.2,1,0,1,   0,-1,2,1,    0,-1,-2,1 };
-	float colors[] = {
-		1,0,0,1,  1,0,0,1,  0,1,0,1,  0,0,1,1 };
-	unsigned int indexes[] = {
-		0,1,2,  0,1,3,  0,2,3,  3,2,1 };
-	int indexCount = 6;
-	int vertexCount = 4;
-
-	spColored->use();
-	glUniformMatrix4fv(spColored->u("P"), 1, false, glm::value_ptr(P));
-	glUniformMatrix4fv(spColored->u("V"), 1, false, glm::value_ptr(V));
-	glUniformMatrix4fv(spColored->u("M"), 1, false, glm::value_ptr(M));
-
-	glEnableVertexAttribArray(spColored->a("vertex"));
-	glVertexAttribPointer(spColored->a("vertex"), 4, GL_FLOAT, false, 0, verts);
-
-	glEnableVertexAttribArray(spColored->a("color"));
-	glVertexAttribPointer(spColored->a("color"), 4, GL_FLOAT, false, 0, colors);
-
-	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, indexes);
-
-	glDisableVertexAttribArray(spColored->a("vertex"));
-	glDisableVertexAttribArray(spColored->a("color"));*/
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//zad2
-	/*int vertexCount = 36;
-
-	spColored->use();
-	glUniformMatrix4fv(spColored->u("P"), 1, false, glm::value_ptr(P));
-	glUniformMatrix4fv(spColored->u("V"), 1, false, glm::value_ptr(V));
-	glUniformMatrix4fv(spColored->u("M"), 1, false, glm::value_ptr(M));
-
-	glEnableVertexAttribArray(spColored->a("vertex"));
-	glVertexAttribPointer(spColored->a("vertex"), 4, GL_FLOAT, false, 0, myCubeVertices);
-
-	glEnableVertexAttribArray(spColored->a("color"));
-	glVertexAttribPointer(spColored->a("color"), 4, GL_FLOAT, false, 0, myCubeColors);
-
-	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	glDisableVertexAttribArray(spColored->a("vertex"));
-	glDisableVertexAttribArray(spColored->a("color"));
-	*/
-	//--------------------------------------------------------------------------------------------------------------------
-	//przykład3
-	//Tablica współrzędnych wierzchołków
-	//float verts[] = {
-	//  1.0f,-1.0f,0.0f,1.0f, //A
-	// -1.0f, 1.0f,0.0f,1.0f, //B
-	// -1.0f,-1.0f,0.0f,1.0f, //C
-
-	//  1.0f,-1.0f,0.0f,1.0f, //A
-	//  1.0f, 1.0f,0.0f,1.0f, //D
-	// -1.0f, 1.0f,0.0f,1.0f, //B
-	//};
-
-	////Tablica współrzędnych teksturowania
-	//float texCoords[] = {
-	//  1.0f, 0.0f,	//A
-	//  0.0f, 1.0f,    //B
-	//  0.0f, 0.0f,    //C
-
-	//  1.0f, 0.0f,    //A
-	//  1.0f, 1.0f,    //D
-	//  0.0f, 1.0f,    //B
-	//};
-
-	////Liczba wierzchołków w tablicy
-	//int vertexCount = 6;
-
-	//spTextured->use();
-	//glUniformMatrix4fv(spTextured->u("P"), 1, false, glm::value_ptr(P));
-	//glUniformMatrix4fv(spTextured->u("V"), 1, false, glm::value_ptr(V));
-	//glUniformMatrix4fv(spTextured->u("M"), 1, false, glm::value_ptr(M));
-
-	//glEnableVertexAttribArray(spTextured->a("vertex"));
-	//glVertexAttribPointer(spTextured->a("vertex"), 4, GL_FLOAT, false, 0, verts);
-
-	//glEnableVertexAttribArray(spTextured->a("texCoord"));
-	//glVertexAttribPointer(spTextured->a("texCoord"), 2, GL_FLOAT, false, 0, texCoords);
-
-	//glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex);
-	//glUniform1i(spTextured->u("tex"), 0);
-
-	//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	//glDisableVertexAttribArray(spTextured->a("vertex"));
-	//glDisableVertexAttribArray(spTextured->a("texCoord"));
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//zad3
-	//float texCoords[] = {
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	//};
-
-	//int vertexCount = 36;
-
-	//spTextured->use();
-	//glUniformMatrix4fv(spTextured->u("P"), 1, false, glm::value_ptr(P));
-	//glUniformMatrix4fv(spTextured->u("V"), 1, false, glm::value_ptr(V));
-	//glUniformMatrix4fv(spTextured->u("M"), 1, false, glm::value_ptr(M));
-
-	//glEnableVertexAttribArray(spTextured->a("vertex"));
-	//glVertexAttribPointer(spTextured->a("vertex"), 4, GL_FLOAT, false, 0, myCubeVertices);
-
-	//glEnableVertexAttribArray(spTextured->a("texCoord"));
-	//glVertexAttribPointer(spTextured->a("texCoord"), 2, GL_FLOAT, false, 0, texCoords);
-
-	//glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex);
-	//glUniform1i(spTextured->u("tex"), 0);
-
-	//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	//glDisableVertexAttribArray(spTextured->a("vertex"));
-	//glDisableVertexAttribArray(spTextured->a("texCoord"));
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//przykład 4
-	//Tablica współrzędnych wierzchołków
-	//float verts[] = {
-	//  1.0f,-1.0f,0.0f,1.0f, //A
-	// -1.0f, 1.0f,0.0f,1.0f, //B
-	// -1.0f,-1.0f,0.0f,1.0f, //C
-
-	//  1.0f,-1.0f,0.0f,1.0f, //A
-	//  1.0f, 1.0f,0.0f,1.0f, //D
-	// -1.0f, 1.0f,0.0f,1.0f }; //B
-	////Tablica współrzędnych teksturowania
-	//float texCoords[] = {
-	//  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, //ABC
-	//  1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, //ADB
-	//};
-	////Tablica wektorów normalnych
-	//float normals[] = {
-	//  0.0f,0.0f,1.0f,0.0f, //A
-	//  0.0f,0.0f,1.0f,0.0f, //B
-	//  0.0f,0.0f,1.0f,0.0f, //C
-
-	//  0.0f,0.0f,1.0f,0.0f, //A
-	//  0.0f,0.0f,1.0f,0.0f, //D
-	//  0.0f,0.0f,1.0f,0.0f, //B
-	//};
-
-	////Liczba wierzchołków w tablicy
-	//int vertexCount = 6;
-
-	//spLambertTextured->use();
-	//glUniformMatrix4fv(spLambertTextured->u("P"), 1, false, glm::value_ptr(P));
-	//glUniformMatrix4fv(spLambertTextured->u("V"), 1, false, glm::value_ptr(V));
-	//glUniformMatrix4fv(spLambertTextured->u("M"), 1, false, glm::value_ptr(M));
-	//glEnableVertexAttribArray(spLambertTextured->a("vertex"));
-	//glVertexAttribPointer(spLambertTextured->a("vertex"), 4, GL_FLOAT, false, 0, verts);
-	//glEnableVertexAttribArray(spLambertTextured->a("normal"));
-	//glVertexAttribPointer(spLambertTextured->a("normal"), 4, GL_FLOAT, false, 0, normals);
-	//glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
-	//glVertexAttribPointer(spLambertTextured->a("texCoord"), 2, GL_FLOAT, false, 0, texCoords);
-
-	//glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex); glUniform1i(spLambertTextured->u("tex"), 0);
-
-	//glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-	//glDisableVertexAttribArray(spLambertTextured->a("vertex"));
-	//glDisableVertexAttribArray(spLambertTextured->a("normal"));
-	//glDisableVertexAttribArray(spLambertTextured->a("texCoord"));
-
-	//--------------------------------------------------------------------------------------------------------------------
-	//zad4
-	//Tablica współrzędnych wierzchołków
-	//Tablica współrzędnych teksturowania
-	float texCoords[] = {
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	   1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-	};
-	//Tablica wektorów normalnych
-	float normals[] = {
-	  0.0f,0.0f,-1.0f,0.0f, 0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,
-	  0.0f,0.0f,1.0f,0.0f,  0.0f,0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f,0.0f,
-	  0.0f,-1.0f,0.0f,0.0f, 0.0f,-1.0f,0.0f,0.0f, 0.0f,-1.0f,0.0f,0.0f, 0.0f,-1.0f,0.0f,0.0f, 0.0f,-1.0f,0.0f,0.0f, 0.0f,-1.0f,0.0f,0.0f,
-	  0.0f,1.0f,0.0f,0.0f,  0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,
-	  -1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,-1.0f,0.0f,0.0f,0.0f,
-	  1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,1.0f,0.0f,0.0f,0.0f,
-	};
-
-	//Liczba wierzchołków w tablicy
-	int vertexCount = 36;
-
-	spLambertTextured->use();
-	glUniformMatrix4fv(spLambertTextured->u("P"), 1, false, glm::value_ptr(P));
-	glUniformMatrix4fv(spLambertTextured->u("V"), 1, false, glm::value_ptr(V));
-	glUniformMatrix4fv(spLambertTextured->u("M"), 1, false, glm::value_ptr(M));
-
-	glEnableVertexAttribArray(spLambertTextured->a("vertex"));
-	glVertexAttribPointer(spLambertTextured->a("vertex"), 4, GL_FLOAT, false, 0, myCubeVertices);
 	glEnableVertexAttribArray(spLambertTextured->a("normal"));
-	glVertexAttribPointer(spLambertTextured->a("normal"), 4, GL_FLOAT, false, 0, normals);
-	glEnableVertexAttribArray(spLambertTextured->a("texCoord"));
-	glVertexAttribPointer(spLambertTextured->a("texCoord"), 2, GL_FLOAT, false, 0, texCoords);
+	glVertexAttribPointer(spLambertTextured->a("normal"), 4, GL_FLOAT, false, 0, norms.data());
+	
+	glEnableVertexAttribArray(spTextured->a("texCoord"));
+	glVertexAttribPointer(spTextured->a("texCoord"), 2, GL_FLOAT, false, 0, texCoords.data());
 
-	glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, tex); glUniform1i(spLambertTextured->u("tex"), 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glUniform1i(spTextured->u("tex"), 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, indices.data());
 
-	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-
-	glDisableVertexAttribArray(spLambertTextured->a("vertex"));
+	glDisableVertexAttribArray(spTextured->a("vertex"));
 	glDisableVertexAttribArray(spLambertTextured->a("normal"));
 	glDisableVertexAttribArray(spLambertTextured->a("texCoord"));
 
