@@ -25,12 +25,14 @@
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="myCube.h" />
+    <ClInclude Include="chess.h" />
     <ClInclude Include="shaderprogram.h" />
     <ClInclude Include="sphere.h" />
     <ClInclude Include="teapot.h" />
     <ClInclude Include="torus.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="chess.cpp" />
     <ClCompile Include="cube.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main_file.cpp" />
@@ -51,6 +53,9 @@
     <None Include="v_lambert.glsl" />
     <None Include="v_lamberttextured.glsl" />
     <None Include="v_textured.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="move.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
