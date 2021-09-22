@@ -15,6 +15,9 @@
 #include "shaderprogram.h"
 #include "myCube.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include "chess.h"
 
 #include <assimp/Importer.hpp>
@@ -115,18 +118,28 @@ void windowResizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-unsigned int loadCubemap(std::vector<std::string> faces) {
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-	unsigned width, height;
+	int width, height, nrChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
 	{
-		std::vector<unsigned char> image;
-		unsigned error = lodepng::decode(image, width, height, faces[i].c_str());
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, &image);
-		
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+			);
+			stbi_image_free(data);
+		}
+		else
+		{
+			std::cout << "Cubemap tex failed to load at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
 	}
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -137,15 +150,16 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
 	return textureID;
 }
 
-std::vector<std::string> faces {
-		"textures\\skybox\\right.png",
-		"textures\\skybox\\left.png",
-		"textures\\skybox\\top.png",
-		"textures\\skybox\\bottom.png",
-		"textures\\skybox\\front.png",
-		"textures\\skybox\\back.png"
+std::vector<std::string> faces
+{
+		"textures\\skybox\\right.jpg",
+		"textures\\skybox\\left.jpg",
+		"textures\\skybox\\top.jpg",
+		"textures\\skybox\\bottom.jpg",
+		"textures\\skybox\\front.jpg",
+		"textures\\skybox\\back.jpg"
 };
-unsigned int cubemapTexture = loadCubemap(faces);
+unsigned int cubemapTexture;
 
 void loadModel(std::string plik) {
 
@@ -216,10 +230,13 @@ void initOpenGLProgram(GLFWwindow* window) {
 	texBoard[1] = readTexture("textures\\board\\512-normal.png");
 	texBoard[2] = readTexture("textures\\board\\512-bump.png");
 	texBoard[3] = readTexture("textures\\board\\512-spec.png");
+
 	texBoard[4] = readTexture("textures\\board_concrete\\Concrete_Wall_008_basecolor.png");
 	texBoard[5] = readTexture("textures\\board_concrete\\Concrete_Wall_008_normal.png");
 	texBoard[6] = readTexture("textures\\board_concrete\\Concrete_Wall_008_height.png");
 	texBoard[7] = readTexture("textures\\board_concrete\\Concrete_Wall_008_roughness.png");
+
+	cubemapTexture = loadCubemap(faces);
 
 	loadModel(std::string("models\\King.fbx"));
 }
@@ -228,6 +245,7 @@ void initOpenGLProgram(GLFWwindow* window) {
 //Zwolnienie zasobów zajętych przez program
 void freeOpenGLProgram(GLFWwindow* window) {
     freeShaders();
+
 	delete spSkybox;
 	delete spBoard;
 	delete spPiece;
@@ -239,9 +257,9 @@ void freeOpenGLProgram(GLFWwindow* window) {
 void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, float angle_y_1) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Wyczyść bufor koloru i bufor głębokości
 	
-	bool draw_skybox = true;
+	bool draw_skybox = false;
 	bool draw_board = false;
-	bool draw_piece = false;
+	bool draw_piece = true;
 
 	glm::vec4 lp = glm::vec4(0, 0, -10, 1); // Położenie źródła światła
 
@@ -252,34 +270,6 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	M = glm::rotate(M, angle_y, glm::vec3(0.0f, 1.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi Y
 	M = glm::rotate(M, angle_x, glm::vec3(1.0f, 0.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi X
 	
-	if (draw_skybox) {
-		spSkybox->use();
-		glUniformMatrix4fv(spSkybox->u("projection"), 1, false, glm::value_ptr(P));
-		glUniformMatrix4fv(spSkybox->u("view"), 1, false, glm::value_ptr(V));
-		//glUniformMatrix4fv(spSkybox->u("model"), 1, false, glm::value_ptr(M));
-		//glUniformMatrix3fv(spSkybox->u("aPos"), 1, false, glm::value_ptr(pos));
-		//glEnableVertexAttribArray(spSkybox->a("skybox"));
-		//glVertexAttribPointer(spSkybox->a("skybox"), 3, GL_FLOAT, false, 0, skyboxVertices);
-		//glBindVertexArray(*skyboxVertices);
-		glDepthFunc(GL_LEQUAL);
-
-		unsigned int skyboxVAO, skyboxVBO;
-		glGenVertexArrays(1, &skyboxVAO);
-		glGenBuffers(1, &skyboxVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS);
-				
-	}
-
 	if (draw_board) {
 		spBoard->use();
 		glUniformMatrix4fv(spBoard->u("P"), 1, false, glm::value_ptr(P));
@@ -373,6 +363,24 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 			glDisableVertexAttribArray(spPiece->a("normal"));
 			//glDisableVertexAttribArray(spPiece->a("color"));
 		}
+	}
+
+	if (draw_skybox) {
+		spSkybox->use();
+		glm::mat4 view = glm::mat4(glm::mat3(V));
+		glUniformMatrix4fv(spSkybox->u("view"), 1, false, glm::value_ptr(view));
+		glUniformMatrix4fv(spSkybox->u("projection"), 1, false, glm::value_ptr(P));
+
+		glDepthFunc(GL_LEQUAL);
+		glEnableVertexAttribArray(spSkybox->a("aPos"));
+		glVertexAttribPointer(spSkybox->a("aPos"), 3, GL_FLOAT, false, 0, skyboxVertices);
+		glUniform1i(spSkybox->u("skybox"), 0);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
 	}
 
 	glfwSwapBuffers(window); //Skopiuj bufor tylny do bufora przedniego
