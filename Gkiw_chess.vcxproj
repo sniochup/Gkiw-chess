@@ -20,35 +20,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h" />
+    <ClInclude Include="helper_functions.h" />
     <ClInclude Include="lodepng.h" />
     <ClInclude Include="myCube.h" />
     <ClInclude Include="chess.h" />
     <ClInclude Include="shaderprogram.h" />
-    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="chess.cpp" />
+    <ClCompile Include="helper_functions.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="main_file.cpp" />
     <ClCompile Include="shaderprogram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="f_board.glsl" />
-    <None Include="f_colored.glsl" />
-    <None Include="f_constant.glsl" />
-    <None Include="f_lambert.glsl" />
-    <None Include="f_lamberttextured.glsl" />
     <None Include="f_piece.glsl" />
     <None Include="f_skybox.glsl" />
-    <None Include="f_textured.glsl" />
     <None Include="v_board.glsl" />
-    <None Include="v_colored.glsl" />
-    <None Include="v_constant.glsl" />
-    <None Include="v_lambert.glsl" />
-    <None Include="v_lamberttextured.glsl" />
     <None Include="v_piece.glsl" />
     <None Include="v_skybox.glsl" />
-    <None Include="v_textured.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="move.txt" />

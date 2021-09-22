@@ -30,7 +30,7 @@
     <ClInclude Include="chess.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="helper_functions.h">
       <Filter>Pliki nagłówkowe</Filter>
     </ClInclude>
   </ItemGroup>
@@ -47,38 +47,11 @@
     <ClCompile Include="main_file.cpp">
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
+    <ClCompile Include="helper_functions.cpp">
+      <Filter>Pliki źródłowe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="f_constant.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="f_lambert.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="v_constant.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="v_lambert.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="f_colored.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="f_lamberttextured.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="f_textured.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="v_colored.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="v_lamberttextured.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
-    <None Include="v_textured.glsl">
-      <Filter>Pliki zasobów</Filter>
-    </None>
     <None Include="f_board.glsl">
       <Filter>Pliki zasobów</Filter>
     </None>
