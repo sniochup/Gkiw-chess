@@ -133,5 +133,5 @@ void Board::move(std::string path, int num) {
 		file.close();
 
 	}
-	else cout << "koniec pliku" << endl;
+	else cout << "KONIEC PLIKU - KONIEC GRY" << endl;
 }

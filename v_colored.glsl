@@ -11,6 +11,7 @@ layout (location=3) in vec4 color; //kolor wierzcho³ka
 
 out vec4 i_c;
 
+
 void main(void) {
     i_c=color;
     gl_Position=P*V*M*vertex;

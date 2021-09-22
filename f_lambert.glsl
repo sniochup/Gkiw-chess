@@ -7,5 +7,5 @@ out vec4 pixelColor; //Zmienna wyjsciowa fragment shadera. Zapisuje sie do niej 
 in vec4 i_color;
 
 void main(void) {
-	pixelColor=i_color;
+	pixelColor = i_color;
 }
