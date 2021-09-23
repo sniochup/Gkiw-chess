@@ -25,6 +25,9 @@ ShaderProgram* spPiece;
 GLuint texBoard[8];
 GLuint cubemapTexture;
 
+Board board;
+Square square[8][8];
+
 Model King;
 Model Queen;
 Model Rook;
@@ -125,6 +128,14 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	bool draw_board = false;
 	bool draw_piece = true;
 	bool draw_skybox = false;
+	//bool draw_all_pieces = false;
+
+	bool draw_king = false;
+	bool draw_queen = false;
+	bool draw_bishop = false;
+	bool draw_knight = true;
+	bool draw_rook = false;
+	bool draw_pawn = false;
 
 	glm::vec4 lp = glm::vec4(0, 0, -10, 1); // Położenie źródła światła
 
@@ -206,26 +217,172 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	}
 	
 	if (draw_piece) {
-
-		int i = 0; // Do zmiany, dodane żeby działało
-
 		spPiece->use();
 		glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
 		glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
 		glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
 		glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+		
+		if (draw_king) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, King.verts.data());
 
-		glEnableVertexAttribArray(spPiece->a("vertex"));
-		glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, King.verts[i].data());
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, King.norms.data());
 
-		glEnableVertexAttribArray(spPiece->a("normal"));
-		glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, King.norms[i].data());
+			glDrawElements(GL_TRIANGLES, King.indices.size(), GL_UNSIGNED_INT, King.indices.data());
+		}
 
-		glDrawElements(GL_TRIANGLES, King.indices[i].size(), GL_UNSIGNED_INT, King.indices[i].data());
+		if (draw_queen) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Queen.verts.data());
+
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Queen.norms.data());
+
+			glDrawElements(GL_TRIANGLES, Queen.indices.size(), GL_UNSIGNED_INT, Queen.indices.data());
+		}
+
+		if (draw_bishop) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Bishop.verts.data());
+
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Bishop.norms.data());
+
+			glDrawElements(GL_TRIANGLES, Bishop.indices.size(), GL_UNSIGNED_INT, Bishop.indices.data());
+		}
+
+		if (draw_knight) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Knight.verts.data());
+
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Knight.norms.data());
+
+			glDrawElements(GL_TRIANGLES, Knight.indices.size(), GL_UNSIGNED_INT, Knight.indices.data());
+		}
+
+		if (draw_rook) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Rook.verts.data());
+
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Rook.norms.data());
+
+			glDrawElements(GL_TRIANGLES, Rook.indices.size(), GL_UNSIGNED_INT, Rook.indices.data());
+		}
+
+		if (draw_pawn) {
+			glEnableVertexAttribArray(spPiece->a("vertex"));
+			glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Pawn.verts.data());
+
+			glEnableVertexAttribArray(spPiece->a("normal"));
+			glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Pawn.norms.data());
+
+			glDrawElements(GL_TRIANGLES, Pawn.indices.size(), GL_UNSIGNED_INT, Pawn.indices.data());
+		}
 
 		glDisableVertexAttribArray(spPiece->a("vertex"));
 		glDisableVertexAttribArray(spPiece->a("normal"));
 	}
+
+	/*if (draw_all_pieces) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				Piece p = square[i][j].getPiece;
+				switch (p)
+				{
+					case king:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, King.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, King.norms.data());
+						glDrawElements(GL_TRIANGLES, King.indices.size(), GL_UNSIGNED_INT, King.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case queen:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Queen.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Queen.norms.data());
+						glDrawElements(GL_TRIANGLES, Queen.indices.size(), GL_UNSIGNED_INT, Queen.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case bishop:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Bishop.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Bishop.norms.data());
+						glDrawElements(GL_TRIANGLES, Bishop.indices.size(), GL_UNSIGNED_INT, Bishop.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case knight:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Knight.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Knight.norms.data());
+						glDrawElements(GL_TRIANGLES, Knight.indices.size(), GL_UNSIGNED_INT, Knight.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case rook:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Rook.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Rook.norms.data());
+						glDrawElements(GL_TRIANGLES, Rook.indices.size(), GL_UNSIGNED_INT, Rook.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case pawn:
+						spPiece->use();
+						glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
+						glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
+						glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
+						glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+						glEnableVertexAttribArray(spPiece->a("vertex"));
+						glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, Pawn.verts.data());
+						glEnableVertexAttribArray(spPiece->a("normal"));
+						glVertexAttribPointer(spPiece->a("normal"), 4, GL_FLOAT, false, 0, Pawn.norms.data());
+						glDrawElements(GL_TRIANGLES, Pawn.indices.size(), GL_UNSIGNED_INT, Pawn.indices.data());
+						glDisableVertexAttribArray(spPiece->a("vertex"));
+						glDisableVertexAttribArray(spPiece->a("normal"));
+						break;
+					case e:
+						break;
+				}
+			}
+		}
+	}*/
 
 	if (draw_skybox) {
 		spSkybox->use();
@@ -285,7 +442,7 @@ int main(void) {
 	float angle_y_1 = 0;
 	glfwSetTime(0); //Wyzeruj licznik czasu
 
-	Board board;
+	//Board board; - zainicjowalam globalnie
 	board.printBoard();
 	int num_move = 0;
 

@@ -25,10 +25,10 @@ GLuint loadCubemap(std::vector<std::string> faces);
 class Model {
 	public:
 		int num_mesh = 0;
-		std::vector<glm::vec4> verts[60];
-		std::vector<glm::vec4> norms[60];
-		std::vector<glm::vec2> texCoords[60];
-		std::vector<unsigned int> indices[60];
+		std::vector<glm::vec4> verts;
+		std::vector<glm::vec4> norms;
+		std::vector<glm::vec2> texCoords;
+		std::vector<unsigned int> indices;
 			
 		void loadModel(std::string plik);
 };

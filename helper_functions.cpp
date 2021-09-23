@@ -72,39 +72,36 @@ void Model::loadModel(std::string plik) {
 	//aiMaterial* material[60];
 
 	if (scene->HasMeshes()) {
-		for (int it = 0; it < scene->mNumMeshes; it++) {
+		aiMesh* mesh = scene->mMeshes[0];
 
-			aiMesh* mesh = scene->mMeshes[it];
+		for (int i = 0; i < mesh->mNumVertices; i++) {
+			aiVector3D vertex = mesh->mVertices[i];
+			verts.push_back(glm::vec4(vertex.x, vertex.y, vertex.z, 1));
+			aiVector3D normal = mesh->mNormals[i];
+			norms.push_back(glm::vec4(normal.x, normal.y, normal.z, 1));
+			//aiVector3D texCoord = mesh->mTextureCoords[0][i];
+			//texCoords[it].push_back(glm::vec2(texCoord.x, texCoord.y));
+			//std::cout << vertex.x << " " << vertex.y << " " << vertex.z << "  ->  " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+		}
 
-			for (int i = 0; i < mesh->mNumVertices; i++) {
-				aiVector3D vertex = mesh->mVertices[i];
-				verts[it].push_back(glm::vec4(vertex.x, vertex.y, vertex.z, 1));
-				aiVector3D normal = mesh->mNormals[i];
-				norms[it].push_back(glm::vec4(normal.x, normal.y, normal.z, 1));
-				//aiVector3D texCoord = mesh->mTextureCoords[0][i];
-				//texCoords[it].push_back(glm::vec2(texCoord.x, texCoord.y));
-				//std::cout << vertex.x << " " << vertex.y << " " << vertex.z << "  ->  " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+		for (int i = 0; i < mesh->mNumFaces; i++) {
+			aiFace& face = mesh->mFaces[i];
+			for (int j = 0; j < face.mNumIndices; j++) {
+				indices.push_back(face.mIndices[j]);
 			}
+		}
 
-			for (int i = 0; i < mesh->mNumFaces; i++) {
-				aiFace& face = mesh->mFaces[i];
-				for (int j = 0; j < face.mNumIndices; j++) {
-					indices[it].push_back(face.mIndices[j]);
-				}
-			}
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		/*for (int i = 0; i < 19; i++) {
+			std::cout << i << " " << material->GetTextureCount((aiTextureType)i) << std::endl;
+		}*/
 
-			/*for (int i = 0; i < 19; i++) {
-				std::cout << i << " " << material->GetTextureCount((aiTextureType)i) << std::endl;
-			}*/
+		for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); i++) {
+			aiString str;
 
-			for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); i++) {
-				aiString str;
-
-				material->GetTexture(aiTextureType_DIFFUSE, i, &str);
-				std::cout << str.C_Str() << std::endl;
-			}
+			material->GetTexture(aiTextureType_DIFFUSE, i, &str);
+			std::cout << str.C_Str() << std::endl;
 		}
 	}
 }
