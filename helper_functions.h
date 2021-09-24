@@ -23,14 +23,15 @@ GLuint readTexture(const char* filename);
 GLuint loadCubemap(std::vector<std::string> faces);
 
 class Model {
-	public:
-		int num_mesh = 0;
-		std::vector<glm::vec4> verts;
-		std::vector<glm::vec4> norms;
-		std::vector<glm::vec2> texCoords;
-		std::vector<unsigned int> indices;
-			
-		void loadModel(std::string plik);
+public:
+	int num_mesh = 0;
+	int num_verts = 0;
+	std::vector<glm::vec4> verts;
+	std::vector<glm::vec4> norms;
+	std::vector<glm::vec2> texCoords;
+	std::vector<unsigned int> indices;
+	
+	void loadModel(std::string plik);
 };
 
 #endif

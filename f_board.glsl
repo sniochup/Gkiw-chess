@@ -4,6 +4,7 @@ uniform sampler2D textureMap0;
 uniform sampler2D textureMap1;
 uniform sampler2D textureMap2;
 uniform sampler2D textureMap3;
+uniform sampler2D textureMap4;
 
 out vec4 pixelColor; //Zmienna wyjsciowa fragment shadera. Zapisuje sie do niej ostateczny (prawie) kolor piksela
 
@@ -48,8 +49,11 @@ void main(void) {
 	//Wektor odbity
 	vec4 mr = reflect(-ml, mn);
 
+	vec2 iTexCoord1 = (mn.xy+1)/2;
+
 	//Parametry powierzchni
-	vec4 kd = texture(textureMap0, nt); 
+	vec4 kd = mix(texture(textureMap0, nt), texture(textureMap4, iTexCoord1), 0.3);
+	//vec4 kd = texture(textureMap0, nt); 
 	vec4 ks = texture(textureMap3, nt);
 
 	//Obliczenie modelu oœwietlenia

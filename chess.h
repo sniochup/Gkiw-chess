@@ -9,14 +9,15 @@ enum Color {white, black, none};
 enum Piece {king, queen, rook, bishop, knight, pawn, e};
 
 class Square {
-	int x, y;
 	Color color;
 	Piece piece;
 
 	public:
 		Square();
 		Piece getPiece();
+		int getPieceNum();
 		Color getColor();
+		int getColorNum();
 		void setSquare(Color, Piece);
 };
 
@@ -31,13 +32,13 @@ class Board : public Square {
 #endif
 
 /*
-K = king	- król
-Q = queen	- hetman
-R = rook	- wie¿a
-B = bishop	- goniec
-N = knight	- skoczek
-P = pawn	- pion
-nutke = e	- puste pole
+K = king	- król		 - 0
+Q = queen	- hetman	 - 1
+R = rook	- wie¿a		 - 2
+B = bishop	- goniec	 - 3
+N = knight	- skoczek	 - 4
+P = pawn	- pion		 - 5
+e = nutke 	- puste pole - 6
 
 W - white
 B - black

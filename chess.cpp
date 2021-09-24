@@ -7,14 +7,28 @@ Square::Square() {
 	piece = e;
 }
 
-Piece Square::getPiece()
-{
+Piece Square::getPiece() {
 	return piece;
 }
 
-Color Square::getColor()
-{
+int Square::getPieceNum() {
+	if (piece == king) return 0;
+	else if (piece == queen) return 1;
+	else if (piece == rook) return 2;
+	else if (piece == bishop) return 3;
+	else if (piece == knight) return 4;
+	else if (piece == pawn) return 5;
+	else if (piece == e) return 6;
+}
+
+Color Square::getColor() {
 	return color;
+}
+
+int Square::getColorNum() {
+	if (color == white) return 0;
+	else if (color == black) return 1;
+	else return 2;
 }
 
 void Square::setSquare(Color c, Piece p) {

@@ -64,24 +64,20 @@ void Model::loadModel(std::string plik) {
 	const aiScene* scene = importer.ReadFile(plik, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	std::cout << importer.GetErrorString() << std::endl;
 
-	std::cout << scene->mNumMeshes << std::endl;
 	num_mesh = scene->mNumMeshes;
-	//aiMesh* mesh = scene->mMeshes[51];
-
-	//aiMesh* mesh[60];
-	//aiMaterial* material[60];
-
+	//std::cout << num_mesh << std::endl;
+	
 	if (scene->HasMeshes()) {
 		aiMesh* mesh = scene->mMeshes[0];
+		num_verts = mesh->mNumVertices;
 
 		for (int i = 0; i < mesh->mNumVertices; i++) {
 			aiVector3D vertex = mesh->mVertices[i];
 			verts.push_back(glm::vec4(vertex.x, vertex.y, vertex.z, 1));
 			aiVector3D normal = mesh->mNormals[i];
-			norms.push_back(glm::vec4(normal.x, normal.y, normal.z, 1));
-			//aiVector3D texCoord = mesh->mTextureCoords[0][i];
-			//texCoords[it].push_back(glm::vec2(texCoord.x, texCoord.y));
-			//std::cout << vertex.x << " " << vertex.y << " " << vertex.z << "  ->  " << normal.x << " " << normal.y << " " << normal.z << std::endl;
+			norms.push_back(glm::vec4(normal.x, normal.y, normal.z, 0));
+			aiVector3D texCoord = mesh->mTextureCoords[0][i];
+			texCoords.push_back(glm::vec2(texCoord.x, texCoord.y));
 		}
 
 		for (int i = 0; i < mesh->mNumFaces; i++) {
@@ -89,19 +85,6 @@ void Model::loadModel(std::string plik) {
 			for (int j = 0; j < face.mNumIndices; j++) {
 				indices.push_back(face.mIndices[j]);
 			}
-		}
-
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-		/*for (int i = 0; i < 19; i++) {
-			std::cout << i << " " << material->GetTextureCount((aiTextureType)i) << std::endl;
-		}*/
-
-		for (int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); i++) {
-			aiString str;
-
-			material->GetTexture(aiTextureType_DIFFUSE, i, &str);
-			std::cout << str.C_Str() << std::endl;
 		}
 	}
 }
