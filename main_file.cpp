@@ -16,7 +16,7 @@
 
 bool n_bool = false;
 
-glm::vec3 pos = glm::vec3(0, 10, 0);
+glm::vec3 pos = glm::vec3(0, 0, -5);
 
 ShaderProgram* spSkybox;
 ShaderProgram* spBoard;
@@ -38,6 +38,11 @@ float speed_y_1 = 0;//[radiany/s]
 float aspectRatio = 1;
 float walk_speed = 0;
 
+float angle_x = -0.5; 
+float angle_y = 0;
+float angle_x_1 = 0;
+float angle_y_1 = 0;
+
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
 	if (height == 0) return;
 	aspectRatio = (float)width / (float)height;
@@ -57,6 +62,20 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 		if (key == GLFW_KEY_D) speed_y_1 = PI;
 		if (key == GLFW_KEY_A) speed_y_1 = -PI;
 		if (key == GLFW_KEY_N) n_bool = true;
+		if (key == GLFW_KEY_1) {
+			pos = glm::vec3(0, 0, -4);
+			angle_x = -0.5;
+			angle_y = 0;
+			angle_x_1 = 0;
+			angle_y_1 = 0;
+		}
+		if (key == GLFW_KEY_2) {
+			pos = glm::vec3(0, 0, -4);
+			angle_x = 0.5;
+			angle_y = PI;
+			angle_x_1 = 0;
+			angle_y_1 = 0;
+		}
 	}
 	if (action == GLFW_RELEASE) {
 		if (key == GLFW_KEY_LEFT) speed_y = 0;
@@ -371,10 +390,7 @@ int main(void) {
 	initOpenGLProgram(window); //Operacje inicjujące
 
 	glfwSetTime(0); //Wyzeruj licznik czasu
-	float angle_x = 0; //zadeklaruj zmienną przechowującą aktualny kąt obrotu
-	float angle_y = 0; //zadeklaruj zmienną przechowującą aktualny kąt obrotu
-	float angle_x_1 = 0;
-	float angle_y_1 = 0;
+
 	int num_move = 0;
 	board.printBoard();
 	
