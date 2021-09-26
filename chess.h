@@ -26,7 +26,7 @@ class Board : public Square {
 		Square square[8][8];
 		Board();
 		void printBoard();
-		void move(std::string path, int num);
+		int move(std::string path, int num);
 };
 
 #endif

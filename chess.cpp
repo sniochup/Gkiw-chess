@@ -95,7 +95,7 @@ void Board::printBoard() {
 	cout << endl;
 }
 
-void Board::move(std::string path, int num) {
+int Board::move(std::string path, int num) {
 	fstream file;
 	string b, f, line;
 	char a;
@@ -139,13 +139,27 @@ void Board::move(std::string path, int num) {
 			case 'h':
 				int_bf[i] = 7;
 				break;
+			case 'r':
+				return 2;
+				break;
+			case 's':
+				if (b[1] == 'w') return 3;
+				if (b[1] == 'b') return 4;
+				break;
+			case 'w':
+				if (b[1] == 'w') return 5;
+				if (b[1] == 'b') return 6;
+				break;
 			}
 		}
 		square[int(f[1]) - 49][int_bf[1]].setSquare(square[int(b[1]) - 49][int_bf[0]].getColor(), square[int(b[1]) - 49][int_bf[0]].getPiece());
 		square[int(b[1]) - 49][int_bf[0]].setSquare(none, e);
 
 		file.close();
-
+		return 0;
 	}
-	else cout << "KONIEC PLIKU - KONIEC GRY" << endl;
+	else {
+		cout << "KONIEC PLIKU - KONIEC GRY" << endl;
+		return 1;
+	}
 }

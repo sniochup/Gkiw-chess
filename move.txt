@@ -7,6 +7,7 @@ g8 f6
 d2 d4
 e5 d4
 f3 d4
+r
 e8 g8
 h8 f8
 c1 g5
@@ -22,3 +23,62 @@ c7 d6
 g2 g3
 b7 d5
 f2 f4
+sw
+g5 e7
+f1 e2
+d5 f3
+h1 f1
+f3 g2
+f1 f2
+g2 c6
+d1 d3
+a7 a5
+r
+e1 c1
+a1 d1
+a5 a4
+a2 a3
+a8 a5
+e2 f3
+c6 b5
+d3 e4
+g7 g6
+e4 e7
+b8 c6
+f3 c6
+d7 c6
+d1 d6
+g8 g7
+sb
+e7 f6
+g7 g8
+b2 b4
+a5 a7
+f2 d2
+c6 c5
+b4 c5
+b5 d7
+c5 b6
+a7 b7
+c2 c4
+f8 e8
+d6 d7
+b7 d7
+d2 d7
+sw
+e8 e1
+c1 b2
+sw
+e1 e2
+b2 c3
+sw
+e2 e3
+c3 b4
+e3 e8
+b4 a4
+h7 h5
+sb
+f6 f7
+g8 h8
+ww
+f7 g7

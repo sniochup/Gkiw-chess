@@ -15,15 +15,15 @@
 #include "helper_functions.h"
 
 bool n_bool = false;
-
-glm::vec3 pos = glm::vec3(0, 0, -5);
+bool end_game = false;
+int move_code = 0;
 
 ShaderProgram* spSkybox;
 ShaderProgram* spBoard;
 ShaderProgram* spPiece;
 
 GLuint texBoard[8];
-GLuint texPiece[2];
+GLuint texPiece[4];
 GLuint cubemapTexture;
 GLuint sky;
 
@@ -38,9 +38,10 @@ float speed_y_1 = 0;//[radiany/s]
 float aspectRatio = 1;
 float walk_speed = 0;
 
-float angle_x = -0.5; 
+glm::vec3 pos = glm::vec3(0, 2, -4);
+float angle_x = 0; 
 float angle_y = 0;
-float angle_x_1 = 0;
+float angle_x_1 = 0.3;
 float angle_y_1 = 0;
 
 void windowResizeCallback(GLFWwindow* window, int width, int height) {
@@ -62,20 +63,44 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 		if (key == GLFW_KEY_D) speed_y_1 = PI;
 		if (key == GLFW_KEY_A) speed_y_1 = -PI;
 		if (key == GLFW_KEY_N) n_bool = true;
+		if (key == GLFW_KEY_ESCAPE) end_game = true;
 		if (key == GLFW_KEY_1) {
-			pos = glm::vec3(0, 0, -4);
-			angle_x = -0.5;
+			pos = glm::vec3(0, 2.7, -2.7);
+			angle_x = 0;
 			angle_y = 0;
-			angle_x_1 = 0;
+			angle_x_1 = 0.6;
 			angle_y_1 = 0;
 		}
 		if (key == GLFW_KEY_2) {
-			pos = glm::vec3(0, 0, -4);
-			angle_x = 0.5;
-			angle_y = PI;
-			angle_x_1 = 0;
+			pos = glm::vec3(0, 1.3, 2.6);
+			angle_x = 0;
+			angle_y = 0;
+			angle_x_1 = 0.3;
+			angle_y_1 = PI;
+		}
+
+		if (key == GLFW_KEY_3) {
+			pos = glm::vec3(-2.5, 2.5, 0);
+			angle_x = 0;
+			angle_y = 0;
+			angle_x_1 = 0.75;
+			angle_y_1 = PI/2;
+		}
+		if (key == GLFW_KEY_4) {
+			pos = glm::vec3(3.31, 1.4, 0);
+			angle_x = 0;
+			angle_y = 0;
+			angle_x_1 = 0.086;
+			angle_y_1 = PI*1.5;
+		}
+		if (key == GLFW_KEY_5) {
+			pos = glm::vec3(0, 3, -1);
+			angle_x = 0;
+			angle_y = 0;
+			angle_x_1 = 1.28;
 			angle_y_1 = 0;
 		}
+
 	}
 	if (action == GLFW_RELEASE) {
 		if (key == GLFW_KEY_LEFT) speed_y = 0;
@@ -114,6 +139,8 @@ void initOpenGLProgram(GLFWwindow* window) {
 
 	texPiece[0] = readTexture("textures\\piece\\White_Marble_004_COLOR.png");
 	texPiece[1] = readTexture("textures\\piece\\unsplash.png");
+	texPiece[2] = readTexture("textures\\piece\\Marble_Red_003_COLOR.png");
+	texPiece[3] = readTexture("textures\\piece\\green.png");
 
 	sky = readTexture("textures\\skybox\\top.png");
 
@@ -152,7 +179,7 @@ void freeOpenGLProgram(GLFWwindow* window) {
 	delete spPiece;
 
 	glDeleteTextures(8, &texBoard[0]);
-	glDeleteTextures(2, &texPiece[0]);
+	glDeleteTextures(4, &texPiece[0]);
 	glDeleteTextures(1, &cubemapTexture);
 	glDeleteTextures(1, &sky);
 }
@@ -167,10 +194,11 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	bool draw_all_pieces = true;
 	bool draw_skybox = true;
 
-	glm::vec4 lp = glm::vec4(0, 10, 0, 1); // Położenie źródła światła
+	glm::vec4 lp = glm::vec4(4, 2, -4, 1); // Położenie źródła światła
+	glm::vec4 lp1 = glm::vec4(-4, 2, 4, 1); // Położenie źródła światła 1
 
 	glm::mat4 V = glm::lookAt(pos, pos + calcDir(angle_x_1, angle_y_1), glm::vec3(0.0f, 1.0f, 0.0f));
-
+	std::cout << "x: " << pos.x << " - y: " << pos.y << " - z: " << pos.y << " -> a_x: " << angle_x_1 << " - a_y: " << angle_y_1 << std::endl;
 	glm::mat4 P = glm::perspective(glm::radians(50.0f), aspectRatio, 0.01f, 50.0f);
 
 	glm::mat4 M = glm::mat4(1.0f); //Zainicjuj macierz modelu macierzą jednostkową
@@ -184,6 +212,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 		glm::mat4 Plansza = glm::scale(M, glm::vec3(1, 0.3, 1));
 		glUniformMatrix4fv(spBoard->u("M"), 1, false, glm::value_ptr(Plansza));
 		glUniform4fv(spBoard->u("lp"), 1, glm::value_ptr(lp));
+		glUniform4fv(spBoard->u("lp1"), 1, glm::value_ptr(lp1));
 
 		glEnableVertexAttribArray(spBoard->a("vertex"));
 		glVertexAttribPointer(spBoard->a("vertex"), 4, GL_FLOAT, false, 0, myCubeVertices);
@@ -261,6 +290,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 		glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
 		glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M));
 		glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+		glUniform4fv(spPiece->u("lp1"), 1, glm::value_ptr(lp1));
 
 		glEnableVertexAttribArray(spPiece->a("vertex"));
 		glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, piece_models[piece_num].verts.data());
@@ -292,7 +322,6 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 				piece_num = board.square[i][j].getPieceNum();
 				if (piece_num != 6) {
 					int c_num = board.square[i][j].getColorNum();
-
 					spPiece->use();
 					glUniformMatrix4fv(spPiece->u("P"), 1, false, glm::value_ptr(P));
 					glUniformMatrix4fv(spPiece->u("V"), 1, false, glm::value_ptr(V));
@@ -308,8 +337,20 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 						M_p = glm::rotate(M_p, (float) PI, glm::vec3(0, 0, 1));
 					}
 
+					if (move_code == 3 && piece_num == 0 && c_num == 0) c_num = 2;
+					else if (move_code == 4 && piece_num == 0 && c_num == 1) c_num = 2;
+					else if (move_code == 5) {
+						if (c_num == 0) c_num = 3;
+						else c_num = 2;
+					}
+					else if (move_code == 6) {
+						if (c_num == 0) c_num = 3;
+						else c_num = 2;
+					}
+
 					glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M_p));
 					glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
+					glUniform4fv(spPiece->u("lp1"), 1, glm::value_ptr(lp1));
 
 					glEnableVertexAttribArray(spPiece->a("vertex"));
 					glVertexAttribPointer(spPiece->a("vertex"), 4, GL_FLOAT, false, 0, piece_models[piece_num].verts.data());
@@ -398,16 +439,28 @@ int main(void) {
 	while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
 	{
 		if (n_bool) {
-			board.move("move.txt", num_move++);
-			board.printBoard();
+			move_code = board.move("move.txt", num_move++);
+			if (move_code == 2) {
+				board.move("move.txt", num_move++);
+				board.move("move.txt", num_move++);
+			}
+			else if (move_code == 3 || move_code == 4 || move_code == 5 || move_code == 6) {
+				board.move("move.txt", num_move++);
+			}
+			else if (move_code == 1) break;
+
+			if (move_code != 5 && move_code != 6) board.printBoard();
 			n_bool = false;
 		}
+
+		if (end_game == true) break;
 
 		angle_x_1 += speed_x * glfwGetTime();
 		angle_y_1 += speed_y * glfwGetTime();
 
 		angle_x += speed_x_1 * glfwGetTime(); //Oblicz kąt o jaki obiekt obrócił się podczas poprzedniej klatki
 		angle_y += speed_y_1 * glfwGetTime(); //Oblicz kąt o jaki obiekt obrócił się podczas poprzedniej klatki
+
 		pos += (float)(walk_speed * glfwGetTime()) * calcDir(angle_x_1, angle_y_1);
 
 		glfwSetTime(0); //Wyzeruj licznik czasu
