@@ -32,9 +32,9 @@ Board board;
 Model piece_models[6];
 
 float speed_x = 0;//[radiany/s]
-float speed_y = 0;//[radiany/s]
-float speed_x_1 = 0;//[radiany/s]
-float speed_y_1 = 0;//[radiany/s]
+float speed_y = 0;
+float speed_x_1 = 0;
+float speed_y_1 = 0;
 float aspectRatio = 1;
 float walk_speed = 0;
 
@@ -56,8 +56,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 		if (key == GLFW_KEY_RIGHT) speed_y = -2;
 		if (key == GLFW_KEY_PAGE_UP) speed_x = -2;
 		if (key == GLFW_KEY_PAGE_DOWN) speed_x = 2;
-		if (key == GLFW_KEY_UP) walk_speed = 10;
-		if (key == GLFW_KEY_DOWN) walk_speed = -10;
+		if (key == GLFW_KEY_UP) walk_speed = 6;
+		if (key == GLFW_KEY_DOWN) walk_speed = -6;
 		if (key == GLFW_KEY_W) speed_x_1 = PI;
 		if (key == GLFW_KEY_S) speed_x_1 = -PI;
 		if (key == GLFW_KEY_D) speed_y_1 = PI;
@@ -198,12 +198,11 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	glm::vec4 lp1 = glm::vec4(-4, 2, 4, 1); // Położenie źródła światła 1
 
 	glm::mat4 V = glm::lookAt(pos, pos + calcDir(angle_x_1, angle_y_1), glm::vec3(0.0f, 1.0f, 0.0f));
-	std::cout << "x: " << pos.x << " - y: " << pos.y << " - z: " << pos.y << " -> a_x: " << angle_x_1 << " - a_y: " << angle_y_1 << std::endl;
 	glm::mat4 P = glm::perspective(glm::radians(50.0f), aspectRatio, 0.01f, 50.0f);
 
-	glm::mat4 M = glm::mat4(1.0f); //Zainicjuj macierz modelu macierzą jednostkową
-	M = glm::rotate(M, angle_y, glm::vec3(0.0f, 1.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi Y
-	M = glm::rotate(M, angle_x, glm::vec3(1.0f, 0.0f, 0.0f)); //Pomnóż macierz modelu razy macierz obrotu o kąt angle wokół osi X
+	glm::mat4 M = glm::mat4(1.0f);
+	M = glm::rotate(M, angle_y, glm::vec3(0.0f, 1.0f, 0.0f));
+	M = glm::rotate(M, angle_x, glm::vec3(1.0f, 0.0f, 0.0f));
 	
 	if (draw_board) {
 		spBoard->use();
@@ -347,6 +346,7 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 						if (c_num == 0) c_num = 3;
 						else c_num = 2;
 					}
+					else if (move_code == 7) c_num = 3;
 
 					glUniformMatrix4fv(spPiece->u("M"), 1, false, glm::value_ptr(M_p));
 					glUniform4fv(spPiece->u("lp"), 1, glm::value_ptr(lp));
@@ -402,16 +402,16 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 
 
 int main(void) {
-	GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
+	GLFWwindow* window;
 
-	glfwSetErrorCallback(error_callback);//Zarejestruj procedurę obsługi błędów
+	glfwSetErrorCallback(error_callback);
 
 	if (!glfwInit()) { //Zainicjuj bibliotekę GLFW
 		fprintf(stderr, "Nie można zainicjować GLFW.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	window = glfwCreateWindow(500, 500, "OpenGL", NULL, NULL);  //Utwórz okno 500x500 o tytule "OpenGL" i kontekst OpenGL.
+	window = glfwCreateWindow(900, 900, "Gkiw_chess", NULL, NULL);
 
 	if (!window) //Jeżeli okna nie udało się utworzyć, to zamknij program
 	{
@@ -420,36 +420,37 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	glfwMakeContextCurrent(window); //Od tego momentu kontekst okna staje się aktywny i polecenia OpenGL będą dotyczyć właśnie jego.
-	glfwSwapInterval(1); //Czekaj na 1 powrót plamki przed pokazaniem ukrytego bufora
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
 
 	if (glewInit() != GLEW_OK) { //Zainicjuj bibliotekę GLEW
 		fprintf(stderr, "Nie można zainicjować GLEW.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	initOpenGLProgram(window); //Operacje inicjujące
+	initOpenGLProgram(window);
 
-	glfwSetTime(0); //Wyzeruj licznik czasu
+	glfwSetTime(0);
 
+	std::string file_chess = "move.txt";
 	int num_move = 0;
 	board.printBoard();
 	
 	//Główna pętla
-	while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
+	while (!glfwWindowShouldClose(window))
 	{
 		if (n_bool) {
-			move_code = board.move("move.txt", num_move++);
+			move_code = board.move(file_chess, num_move++);
 			if (move_code == 2) {
-				board.move("move.txt", num_move++);
-				board.move("move.txt", num_move++);
+				board.move(file_chess, num_move++);
+				board.move(file_chess, num_move++);
 			}
-			else if (move_code == 3 || move_code == 4 || move_code == 5 || move_code == 6) {
-				board.move("move.txt", num_move++);
+			else if (move_code == 3 || move_code == 4 || move_code == 5 || move_code == 6 || move_code == 7 || move_code == 8) {
+				board.move(file_chess, num_move++);
 			}
 			else if (move_code == 1) break;
 
-			if (move_code != 5 && move_code != 6) board.printBoard();
+			if (move_code != 5 && move_code != 6 && move_code != 7) board.printBoard();
 			n_bool = false;
 		}
 
@@ -458,19 +459,19 @@ int main(void) {
 		angle_x_1 += speed_x * glfwGetTime();
 		angle_y_1 += speed_y * glfwGetTime();
 
-		angle_x += speed_x_1 * glfwGetTime(); //Oblicz kąt o jaki obiekt obrócił się podczas poprzedniej klatki
-		angle_y += speed_y_1 * glfwGetTime(); //Oblicz kąt o jaki obiekt obrócił się podczas poprzedniej klatki
+		angle_x += speed_x_1 * glfwGetTime();
+		angle_y += speed_y_1 * glfwGetTime();
 
 		pos += (float)(walk_speed * glfwGetTime()) * calcDir(angle_x_1, angle_y_1);
 
-		glfwSetTime(0); //Wyzeruj licznik czasu
-		drawScene(window, angle_x, angle_y, angle_x_1, angle_y_1); //Wykonaj procedurę rysującą
-		glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
+		glfwSetTime(0);
+		drawScene(window, angle_x, angle_y, angle_x_1, angle_y_1);
+		glfwPollEvents();
 	}
 
 	freeOpenGLProgram(window);
 
-	glfwDestroyWindow(window); //Usuń kontekst OpenGL i okno
-	glfwTerminate(); //Zwolnij zasoby zajęte przez GLFW
+	glfwDestroyWindow(window);
+	glfwTerminate();
 	exit(EXIT_SUCCESS);
 }

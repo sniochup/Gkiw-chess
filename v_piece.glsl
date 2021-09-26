@@ -19,8 +19,6 @@ out vec2 iTexCoord1;
 
 
 void main(void) {
-  vec4 color = vec4(0, 0, 0, 1);
-
   l = normalize(V*lp - V*M*vertex);
   l1 = normalize(V*lp1 - V*M*vertex);
 

@@ -149,6 +149,10 @@ int Board::move(std::string path, int num) {
 			case 'w':
 				if (b[1] == 'w') return 5;
 				if (b[1] == 'b') return 6;
+				if (b[1] == 'p') return 7;
+				break;
+			case 'p':
+				return 8;
 				break;
 			}
 		}

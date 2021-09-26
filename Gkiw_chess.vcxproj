@@ -43,6 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="move.txt" />
+    <Text Include="move_1.txt" />
+    <Text Include="move_2.txt" />
+    <Text Include="readme.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
