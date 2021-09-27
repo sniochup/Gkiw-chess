@@ -26,3 +26,9 @@ Niniejszy program pozwala na odtworzenie rozgrywki szachowej zapisanej w pliku .
 - czerwony pionek - szach
 - zielone i czerwone pionki - zakoÒczenie gry (wygrane pionki stajπ siÍ zielone, przegrane czerwone)
 - zielone pionki - w sytuacji remisu ("pat") wszystkie pionki stajπ siÍ zielone
+
+##### èrÛd≥a modeli i tekstur:
+- https://www.cgtrader.com/free-3d-models/interior/living-room/chess-37ed3858-d2d6-449a-8def-9db6f83ac48c
+- https://3dtextures.me/
+- https://tileable.co/?my_cat=Every&my_search=Chess%20board
+- https://3dtextures.me/2021/04/03/concrete-wall-008/
