@@ -382,8 +382,8 @@ void drawScene(GLFWwindow* window,float angle_x,float angle_y, float angle_x_1, 
 	if (draw_skybox) {
 		spSkybox->use();
 		glm::mat4 view = glm::mat4(glm::mat3(V));
-		glUniformMatrix4fv(spSkybox->u("view"), 1, false, glm::value_ptr(view));
-		glUniformMatrix4fv(spSkybox->u("projection"), 1, false, glm::value_ptr(P));
+		glUniformMatrix4fv(spSkybox->u("V"), 1, false, glm::value_ptr(view));
+		glUniformMatrix4fv(spSkybox->u("P"), 1, false, glm::value_ptr(P));
 
 		glDepthFunc(GL_LEQUAL);
 		glEnableVertexAttribArray(spSkybox->a("aPos"));
