@@ -74,6 +74,6 @@
   <ItemGroup>
     <Text Include="move.txt" />
     <Text Include="move_1.txt" />
-    <Text Include="readme.txt" />
+    <Text Include="readme.md" />
   </ItemGroup>
 </Project>
