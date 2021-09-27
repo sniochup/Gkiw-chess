@@ -25,3 +25,4 @@ ESC - zakoñcz rozgrywkê
 Oznaczenia kolorystyczne:
 czerwony pionek - szach
 zielone i czerwone pionki - zakoñczenie gry (wygrane pionki staj¹ siê zielone, przegrane czerwone)
+zielone pionki - w sytuacji remisu ("pat") wszystkie pionki staj¹ siê zielone
