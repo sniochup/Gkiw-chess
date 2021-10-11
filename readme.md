@@ -1,34 +1,33 @@
-# Symulator rozgrywki szachowej
+# Chess Gameplay Simulator
 ###### Pawe≥ ånioszek 145245, Julia Lamperska 145365
 
-Niniejszy program pozwala na odtworzenie rozgrywki szachowej zapisanej w pliku .txt w stworzonym przez nas formacie opartym na klasycznej notacji szachowej.
+Chess 3D simulator implemented in OpenGL. This program allows users to play a chess gameplay saved in a .txt file, in a format created by us, based on the classic chess notation.
 
-##### Funkcje klawiszy:
-- `N` - nastÍpny ruch szachowy
-- `Strza≥ka w lewo` - ruch kamery w lewo
-- `Strza≥ka w prawo` - ruch kamery w prawo
-- `Strza≥ka w gÛrÍ` - ruch kamery do przodu
-- `Strza≥ka w dÛ≥` - ruch kamery do ty≥u
-- `Page Up` - ruch kamery w gÛrÍ
-- `Page Down` - ruch kamery w dÛ≥
-- `W` - obrÛt planszy w gÛrÍ
-- `S` - obrÛt planszy w dÛ≥
-- `A` - obrÛt planszy w lewo
-- `D` - obrÛt planszy w prawo
-- `1` - perspektywa gracza z bia≥ymi pionkami
-- `2` - perspektywa gracza z czarnymi pionkami
-- `3` - pierwszy widok planszy z boku
-- `4` - drugi widok planszy z boku
-- `5` - widok planszy z gÛry
-- `ESC` - zakoÒcz rozgrywkÍ
+##### Key functions:
+- `N` - next chess move
+- `Left arrow` - move the camera to the left
+- `Right arrow` - move the camera to the right
+- `Up arrow` - move the camera forward
+- `Down arrow` - move the camera backwards
+- `Page Up` - move the camera up
+- `Page Down` - move the camera down
+- `W` - turn the board up
+- `S` - turn the board down
+- `A` - turn the board to the left
+- `D` - turn the board to the right
+- `1` - white player's perspective
+- `2` - black player's perspective
+- `3` - first side view of the board
+- `4` - second side view of the board
+- `5` - top view of the board
+- `ESC` - end gameplay
 
-##### Oznaczenia kolorystyczne:
-- czerwony pionek - szach
-- zielone i czerwone pionki - zakoÒczenie gry (wygrane pionki stajπ siÍ zielone, przegrane czerwone)
-- zielone pionki - w sytuacji remisu ("pat") wszystkie pionki stajπ siÍ zielone
+##### Color markings:
+- red pawn - check
+- green and red pawns - the end of the game (winning pawns become green, loosing pawns become red)
+- green pawns - stalemate (all pawns become green)
 
-##### èrÛd≥a modeli i tekstur:
-- https://www.cgtrader.com/free-3d-models/interior/living-room/chess-37ed3858-d2d6-449a-8def-9db6f83ac48c
+##### Sources of models and textures:
+- https://www.cgtrader.com/
 - https://3dtextures.me/
-- https://tileable.co/?my_cat=Every&my_search=Chess%20board
-- https://3dtextures.me/2021/04/03/concrete-wall-008/
+- https://tileable.co/
