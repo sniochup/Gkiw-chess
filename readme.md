@@ -1,5 +1,4 @@
 # Chess Gameplay Simulator
-###### Pawe³ Œnioszek 145245, Julia Lamperska 145365
 
 Chess 3D simulator implemented in OpenGL. This program allows users to play a chess gameplay saved in a .txt file, in a format created by us, based on the classic chess notation.
 
