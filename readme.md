@@ -30,7 +30,3 @@ Chess 3D simulator implemented in OpenGL. This program allows users to play a ch
 - https://www.cgtrader.com/
 - https://3dtextures.me/
 - https://tileable.co/
-
-##### Technical information:
-- made in Visual Studio 2019
-- debug x86
