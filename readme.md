@@ -26,6 +26,11 @@ Chess 3D simulator implemented in OpenGL. This program allows users to play a ch
 - green and red pawns - the end of the game (winning pawns become green, loosing pawns become red)
 - green pawns - stalemate (all pawns become green)
 
+##### App appearance
+![Picture](screenshot/start.png)
+![Picture](screenshot/check.png)
+![Picture](screenshot/mate.png)
+
 ##### Sources of models and textures:
 - https://www.cgtrader.com/
 - https://3dtextures.me/
